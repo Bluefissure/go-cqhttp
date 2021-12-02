@@ -218,6 +218,28 @@ func (bot *CQBot) guildMessageReactionsUpdatedEvent(c *client.QQClient, e *clien
 	})
 }
 
+func (bot *CQBot) guildMessageReactionsTipsEvent(c *client.QQClient, e *client.GuildMessageReactionsTipsEvent) {
+	guild := c.GuildService.FindGuild(e.GuildId)
+	if guild == nil {
+		return
+	}
+	str := fmt.Sprintf("频道 %v(%v) 消息 %v 被 %v 进行了表情贴片 ", guild.GuildName, guild.GuildId, e.MessageNo, e.TinyId)
+	log.Infof(str)
+	bot.dispatchEventMessage(global.MSG{
+		"post_type":    "notice",
+		"notice_type":  "message_reactions_tips",
+		"guild_id":     guild.GuildId,
+		"channel_id":   e.ChannelId,
+		"message_no":   e.MessageNo,
+		"emoji_id":     e.EmojiId,
+		"operator_id":  e.TinyId,
+		"time":         time.Now().Unix(),
+		"self_id":      bot.Client.Uin,
+		"self_tiny_id": bot.Client.GuildService.TinyId,
+		"user_id":      e.TinyId,
+	})
+}
+
 func (bot *CQBot) guildChannelUpdatedEvent(c *client.QQClient, e *client.GuildChannelUpdatedEvent) {
 	guild := c.GuildService.FindGuild(e.GuildId)
 	if guild == nil {
